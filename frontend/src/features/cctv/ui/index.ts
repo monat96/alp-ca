@@ -1,0 +1,5 @@
+export { default as CCTVStreamingPlayer } from './cctv-streaming-player.vue'
+export { default as CCTVTable } from './cctv-table.vue'
+export { default as CCTVDetailDialog } from './cctv-detail-dialog.vue'
+export { default as CCTVCard } from './cctv-card.vue'
+export { default as CCTVCardList } from './cctv-card-list.vue'
