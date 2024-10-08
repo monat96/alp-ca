@@ -1,5 +1,7 @@
 package com.kt.alpca.healthcheck.model;
 
+import com.kt.alpca.healthcheck.enums.HLSStatus;
+import com.kt.alpca.healthcheck.enums.ICMPStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +19,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class HealthCheck {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,9 +33,11 @@ public class HealthCheck {
 
     private double rttMin;
 
-    private String icmpStatus; // TODO: enums 추가
+    @Enumerated(EnumType.STRING)
+    private ICMPStatus icmpStatus;
 
-    private String hlsStatus; // TODO: enums 추가
+    @Enumerated(EnumType.STRING)
+    private HLSStatus hlsStatus;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
