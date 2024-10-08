@@ -1,6 +1,6 @@
-# CCTV Controller(변경필요)
+# CCTV Out
 
-CCTV Contorller는 등록 된 CCTV의 상태를 실시간으로 감시하여 문제 발생 시 담당자에게 자동알림을 발송하는 프로그램입니다.
+CCTV Out은 등록 된 CCTV의 상태를 실시간으로 감시하여 문제 발생 시 담당자에게 자동알림을 발송하는 프로그램입니다.
 
 # 서비스 시나리오
 
@@ -105,209 +105,21 @@ CCTV 네트워크 이상감지 프로젝트
 
 ### 바운디드 컨텍스트로 묶기
 
-![image](https://user-images.githubusercontent.com/15603058/119300858-6c21b300-bc9c-11eb-9b3f-c85aff51658f.png)
+![image](https://github.com/monat96/alp-ca/blob/main/image/5_%E1%84%8C%E1%85%A5%E1%86%BC%E1%84%8E%E1%85%A2%E1%86%A8.png)
 
-    - 도메인 서열 분리 
-        - Core Domain:  reservation, room : 없어서는 안될 핵심 서비스이며, 연간 Up-time SLA 수준을 99.999% 목표, 배포주기는 reservation 의 경우 1주일 1회 미만, room 의 경우 1개월 1회 미만
-        - Supporting Domain:   message, viewpage : 경쟁력을 내기위한 서비스이며, SLA 수준은 연간 60% 이상 uptime 목표, 배포주기는 각 팀의 자율이나 표준 스프린트 주기가 1주일 이므로 1주일 1회 이상을 기준으로 함.
-        - General Domain:   payment : 결제서비스로 3rd Party 외부 서비스를 사용하는 것이 경쟁력이 높음 
-
-### 폴리시 부착 (괄호는 수행주체, 폴리시 부착을 둘째단계에서 해놔도 상관 없음. 전체 연계가 초기에 드러남)
-
-![image](https://user-images.githubusercontent.com/15603058/119303664-1b608900-bca1-11eb-8667-7545f32c9fb9.png)
-
-### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
-
-![image](https://user-images.githubusercontent.com/15603058/119304604-73e45600-bca2-11eb-8f1d-607006919fab.png)
+도메인 서열 분리 
+       - CCTV 관리(CCTV Management): CCTV IP 등록, 수정, 삭제 및 상태 점검 등 핵심 기능으로, 네트워크 감지 시스템의 핵심 서비스입니다. 이 도메인의 안정성은 시스템 전체 가동에 매우 중요한 역할을 하며, 연간 가동률(SLA) 목표는 99.999%입니다. 배포 주기는 변경 사항 발생 시 1개월 1회 이하입니다.
+	- 네트워크 상태 확인(Network Health Check): CCTV 네트워크 연결 상태(핑 테스트, HLS 체크)를 확인하는 핵심 도메인입니다. 시스템의 주요 부분으로 네트워크 장애가 발생할 시 빠르게 대응할 수 있어야 하며, 이 역시 99.999%의 가동률을 목표로 합니다. 배포 주기는 네트워크 모니터링과 관련한 기능에 따라 1개월 1회 이하로 유지됩니다.
 
 ### 완성된 1차 모형
 
-![image](https://user-images.githubusercontent.com/15603058/119305002-0edd3000-bca3-11eb-9cc0-1ba8b17f2432.png)
+![image](https://github.com/monat96/alp-ca/blob/main/image/6.%20%E1%84%92%E1%85%AA%E1%84%89%E1%85%A1%E1%86%AF%E1%84%91%E1%85%AD.png)
 
     - View Model 추가
 
-### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
-
-![image](https://user-images.githubusercontent.com/15603058/119306321-f110ca80-bca4-11eb-804c-a965220bad61.png)
-
-    - 호스트가 임대할 숙소를 등록/수정/삭제한다.(ok)
-    - 고객이 숙소를 선택하여 예약한다.(ok)
-    - 예약과 동시에 결제가 진행된다.(ok)
-    - 예약이 되면 예약 내역(Message)이 전달된다.(?)
-    - 고객이 예약을 취소할 수 있다.(ok)
-    - 예약 사항이 취소될 경우 취소 내역(Message)이 전달된다.(?)
-    - 숙소에 후기(review)를 남길 수 있다.(ok)
-    - 전체적인 숙소에 대한 정보 및 예약 상태 등을 한 화면에서 확인 할 수 있다.(View-green Sticker 추가로 ok)
-    
-### 모델 수정
-
-![image](https://user-images.githubusercontent.com/15603058/119307481-b740c380-bca6-11eb-9ee6-fda446e299bc.png)
-    
-    - 수정된 모델은 모든 요구사항을 커버함.
-
-### 비기능 요구사항에 대한 검증
-
-![image](https://user-images.githubusercontent.com/15603058/119311800-79df3480-bcac-11eb-9c1b-0382d981f92f.png)
-
-- 마이크로 서비스를 넘나드는 시나리오에 대한 트랜잭션 처리
-- 고객 예약시 결제처리:  결제가 완료되지 않은 예약은 절대 받지 않는다고 결정하여, ACID 트랜잭션 적용. 예약 완료시 사전에 방 상태를 확인하는 것과 결제처리에 대해서는 Request-Response 방식 처리
-- 결제 완료시 Host 연결 및 예약처리:  reservation 에서 room 마이크로서비스로 예약요청이 전달되는 과정에 있어서 room 마이크로 서비스가 별도의 배포주기를 가지기 때문에 Eventual Consistency 방식으로 트랜잭션 처리함.
-- 나머지 모든 inter-microservice 트랜잭션: 예약상태, 후기처리 등 모든 이벤트에 대해 데이터 일관성의 시점이 크리티컬하지 않은 모든 경우가 대부분이라 판단, Eventual Consistency 를 기본으로 채택함.
+----- 작성중 -----
 
 
-## 헥사고날 아키텍처 다이어그램 도출
-
-![image](https://user-images.githubusercontent.com/80744273/119319091-fc6bf200-bcb4-11eb-9dac-0995c84a82e0.png)
-
-
-    - Chris Richardson, MSA Patterns 참고하여 Inbound adaptor와 Outbound adaptor를 구분함
-    - 호출관계에서 PubSub 과 Req/Resp 를 구분함
-    - 서브 도메인과 바운디드 컨텍스트의 분리:  각 팀의 KPI 별로 아래와 같이 관심 구현 스토리를 나눠가짐
-
-
-# 구현:
-
-분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8081 ~ 808n 이다)
-
-```
-   mvn spring-boot:run
-```
-
-## CQRS
-
-숙소(Room) 의 사용가능 여부, 리뷰 및 예약/결재 등 총 Status 에 대하여 고객(Customer)이 조회 할 수 있도록 CQRS 로 구현하였다.
-- room, review, reservation, payment 개별 Aggregate Status 를 통합 조회하여 성능 Issue 를 사전에 예방할 수 있다.
-- 비동기식으로 처리되어 발행된 이벤트 기반 Kafka 를 통해 수신/처리 되어 별도 Table 에 관리한다
-- Table 모델링 (ROOMVIEW)
-
-  ![image](https://user-images.githubusercontent.com/77129832/119319352-4b198c00-bcb5-11eb-93bc-ff0657feeb9f.png)
-- viewpage MSA ViewHandler 를 통해 구현 ("RoomRegistered" 이벤트 발생 시, Pub/Sub 기반으로 별도 Roomview 테이블에 저장)
-  ![image](https://user-images.githubusercontent.com/77129832/119321162-4d7ce580-bcb7-11eb-9030-29ee6272c40d.png)
-  ![image](https://user-images.githubusercontent.com/31723044/119350185-fccab400-bcd9-11eb-8269-61868de41cc7.png)
-- 실제로 view 페이지를 조회해 보면 모든 room에 대한 전반적인 예약 상태, 결제 상태, 리뷰 건수 등의 정보를 종합적으로 알 수 있다
-  ![image](https://user-images.githubusercontent.com/31723044/119357063-1b34ad80-bce2-11eb-94fb-a587261ab56f.png)
-
-
-## API 게이트웨이
-      1. gateway 스프링부트 App을 추가 후 application.yaml내에 각 마이크로 서비스의 routes 를 추가하고 gateway 서버의 포트를 8080 으로 설정함
-       
-          - application.yaml 예시
-            ```
-            spring:
-              profiles: docker
-              cloud:
-                gateway:
-                  routes:
-                    - id: payment
-                      uri: http://payment:8080
-                      predicates:
-                        - Path=/payments/** 
-                    - id: room
-                      uri: http://room:8080
-                      predicates:
-                        - Path=/rooms/**, /reviews/**, /check/**
-                    - id: reservation
-                      uri: http://reservation:8080
-                      predicates:
-                        - Path=/reservations/**
-                    - id: message
-                      uri: http://message:8080
-                      predicates:
-                        - Path=/messages/** 
-                    - id: viewpage
-                      uri: http://viewpage:8080
-                      predicates:
-                        - Path= /roomviews/**
-                  globalcors:
-                    corsConfigurations:
-                      '[/**]':
-                        allowedOrigins:
-                          - "*"
-                        allowedMethods:
-                          - "*"
-                        allowedHeaders:
-                          - "*"
-                        allowCredentials: true
-
-            server:
-              port: 8080            
-            ```
-
-         
-      2. Kubernetes용 Deployment.yaml 을 작성하고 Kubernetes에 Deploy를 생성함
-          - Deployment.yaml 예시
-          
-
-            ```
-            apiVersion: apps/v1
-            kind: Deployment
-            metadata:
-              name: gateway
-              namespace: airbnb
-              labels:
-                app: gateway
-            spec:
-              replicas: 1
-              selector:
-                matchLabels:
-                  app: gateway
-              template:
-                metadata:
-                  labels:
-                    app: gateway
-                spec:
-                  containers:
-                    - name: gateway
-                      image: 247785678011.dkr.ecr.us-east-2.amazonaws.com/gateway:1.0
-                      ports:
-                        - containerPort: 8080
-            ```               
-            
-
-            ```
-            Deploy 생성
-            kubectl apply -f deployment.yaml
-            ```     
-          - Kubernetes에 생성된 Deploy. 확인
-            
-![image](https://user-images.githubusercontent.com/80744273/119321943-1d821200-bcb8-11eb-98d7-bf8def9ebf80.png)
-	    
-            
-      3. Kubernetes용 Service.yaml을 작성하고 Kubernetes에 Service/LoadBalancer을 생성하여 Gateway 엔드포인트를 확인함. 
-          - Service.yaml 예시
-          
-            ```
-            apiVersion: v1
-              kind: Service
-              metadata:
-                name: gateway
-                namespace: airbnb
-                labels:
-                  app: gateway
-              spec:
-                ports:
-                  - port: 8080
-                    targetPort: 8080
-                selector:
-                  app: gateway
-                type:
-                  LoadBalancer           
-            ```             
-
-           
-            ```
-            Service 생성
-            kubectl apply -f service.yaml            
-            ```             
-            
-            
-          - API Gateay 엔드포인트 확인
-           
-            ```
-            Service  및 엔드포인트 확인 
-            kubectl get svc -n airbnb           
-            ```                 
-![image](https://user-images.githubusercontent.com/80744273/119318358-2a046b80-bcb4-11eb-9d46-ef2d498c2cff.png)
 
 # Correlation
 
