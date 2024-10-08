@@ -5,7 +5,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.kt.alpca.cctv.model.CCTV;
 
-@RepositoryRestResource
+@RepositoryRestResource(collectionResourceRel = "cctvs", path = "cctvs")
 public interface CCTVRepository extends JpaRepository<CCTV, String> {
 
 }
