@@ -76,7 +76,7 @@ CCTV 네트워크 이상감지 프로젝트
 
 
 ### 이벤트 도출
-![image][(https://user-images.githubusercontent.com/15603058/119298548-337fda80-bc98-11eb-9f96-7d583d156fb9.png)](https://github.com/monat96/alp-ca/blob/main/image/1_event.png)
+![image](https://user-images.githubusercontent.com/15603058/119298548-337fda80-bc98-11eb-9f96-7d583d156fb9.png)
 
 
 ### 부적격 이벤트 탈락
