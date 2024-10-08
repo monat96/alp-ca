@@ -72,11 +72,11 @@ CCTV 네트워크 이상감지 프로젝트
 # 분석/설계
 
 ## Event Storming 결과
-* MSAEz 로 모델링한 이벤트스토밍 결과:  [http://www.msaez.io/#/storming/QtpQtDiH1Je3wad2QxZUJVvnLzO2/share/6f36e16efdf8c872da3855fedf7f3ea9](https://www.msaez.io/#/storming/nmsservice)
+* MSAEz 로 모델링한 이벤트스토밍 결과:  [https://www.msaez.io/#/storming/nmsservice]
 
 
 ### 이벤트 도출
-![image](https://user-images.githubusercontent.com/15603058/119298548-337fda80-bc98-11eb-9f96-7d583d156fb9.png)
+![image](https://github.com/monat96/alp-ca/blob/main/image/1_event.png)
 
 
 ### 부적격 이벤트 탈락
