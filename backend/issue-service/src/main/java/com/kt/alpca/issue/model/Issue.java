@@ -1,6 +1,8 @@
 package com.kt.alpca.issue.model;
 
 
+import com.kt.alpca.issue.enums.HealthCheckType;
+import com.kt.alpca.issue.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +20,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,23 +30,23 @@ public class Issue {
 
     private String healthCheckId; // HealthCheck ID
 
-    // TODO: enums 추가
-    private String status; // 장애 상태
+    @Enumerated(EnumType.STRING)
+    private Status status; // 장애 상태
 
     private String details; // 조치 내용
 
-    // TODO: enums 추가
-    private String healthCheckType; // HealthCheck 종류
+    @Enumerated(EnumType.STRING)
+    private HealthCheckType healthCheckType; // HealthCheck 종류
 
-    private LocalDateTime issueAt; // 장애 발생 시간
+    private LocalDateTime issuedAt; // 장애 발생 시간
 
-    private LocalDateTime resolveAt; // 장애 해결 시간
+    private LocalDateTime resolvedAt; // 장애 해결 시간
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 }
