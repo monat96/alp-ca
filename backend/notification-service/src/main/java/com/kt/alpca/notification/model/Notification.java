@@ -1,5 +1,6 @@
 package com.kt.alpca.notification.model;
 
+import com.kt.alpca.notification.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,9 +28,12 @@ public class Notification {
 
     private Long healthCheckId;
 
-    // 수신자 정보
-    // 메시지 정보
-    // 알림 상태
+    private String receiverId; // 수신자 정보
+
+    private String description; // 알림 내용
+
+    @Enumerated(EnumType.STRING)
+    private Status status; // 알림 상태
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
