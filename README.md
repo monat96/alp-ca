@@ -77,21 +77,31 @@ CCTV 네트워크 이상감지 프로젝트
 
 ### 이벤트 도출
 ![image](https://github.com/monat96/alp-ca/blob/main/image/1_event.png)
-
+	•	CCTV IP 등록 / 수정 / 삭제: 관리자가 CCTV 장치의 IP를 등록, 수정, 삭제하는 작업은 주요 이벤트입니다. 이는 시스템에서 CCTV의 상태를 추적하기 위해 필수적인 이벤트로 간주됩니다.
+	•	CCTV 개별 테스트: 각 CCTV 장치에 대해 개별적인 테스트가 수행되며, 네트워크 상태와 연결 상태를 점검합니다.
+	•	ICMP 확인: ICMP 핑 테스트는 CCTV가 정상적으로 네트워크에 연결되어 있는지 확인하는 이벤트입니다.
+	•	HLS 확인: HLS 스트리밍 상태를 주기적으로 점검하며, 비정상적인 상태를 탐지합니다.
+	•	(문제가 생긴 CCTV에 대해) 해당지역방문, 문제해결, 알람: CCTV 문제가 확인되면 담당자에게 알림을 보냅니다.
+	•	(관리자) 결과 확인: 문제가 해결되었을 때, 시스템이 자동으로 확인 후 결과를 관리자에게 전달합니다.
 
 ### 부적격 이벤트 탈락
-![image](https://user-images.githubusercontent.com/15603058/119298594-4f837c00-bc98-11eb-9f67-ec2e882e1f33.png)
-
-    - 과정중 도출된 잘못된 도메인 이벤트들을 걸러내는 작업을 수행함
-        - 등록시>RoomSearched, 예약시>RoomSelected :  UI 의 이벤트이지, 업무적인 의미의 이벤트가 아니라서 제외
+![image](https://github.com/monat96/alp-ca/blob/main/image/2_event_remove.png)
+	•	CCTV 개별 테스트: UI 이벤트로 실제 업무적 의미가 부족하므로 제외되었습니다.
+	•	개별 ICMP, HLS 확인: 이 역시 UI 이벤트로 업무적 의미가 부족하여 제외되었습니다.
 
 ### 액터, 커맨드 부착하여 읽기 좋게
-![image](https://user-images.githubusercontent.com/15603058/119298993-113a8c80-bc99-11eb-9bae-4b911317d810.png)
+![image](https://github.com/monat96/alp-ca/blob/main/image/3_actor.png)
+	•	관리자: 시스템 전체를 관리하며, CCTV 네트워크의 상태를 모니터링하고 이상이 발생할 시 담당자에게 알림을 보냅니다.
+	•	CCTV 담당자: CCTV 장치 관련 문제 발생 시, 해당 문제를 해결하고 시스템에 결과를 기록합니다.
+	•	네트워크(NW) 담당자: 네트워크 관련 문제 발생 시, 이를 해결하는 역할을 담당합니다.
 
 ### 어그리게잇으로 묶기
-![image](https://user-images.githubusercontent.com/15603058/119299589-2663eb00-bc9a-11eb-83b9-de7f3efe7548.png)
+![image](https://github.com/monat96/alp-ca/blob/main/image/4_aggregate.png)
 
-    - Room, Reservation, Payment, Review 은 그와 연결된 command 와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 그들 끼리 묶어줌
+   	•	CCTV 등록 및 상태 체크: CCTV 등록, 수정, 삭제 이벤트는 하나의 어그리게잇으로 묶여 관리됩니다. 이는 트랜잭션 단위로 관리되어야 하며, 일관성을 유지하는 것이 중요합니다.
+	•	건강 상태 체크: ICMP 및 HLS 테스트와 관련된 이벤트는 네트워크 상태 확인과 문제 해결에 대한 중요한 트랜잭션을 포함합니다.
+	•	문제 해결 및 알림: 네트워크 또는 CCTV 문제 해결 후, 해당 알림을 보내는 이벤트가 묶여 있습니다.
+
 
 ### 바운디드 컨텍스트로 묶기
 
