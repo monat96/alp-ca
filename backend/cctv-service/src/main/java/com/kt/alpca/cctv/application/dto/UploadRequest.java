@@ -1,4 +1,4 @@
-package com.kt.alpca.cctv.dto;
+package com.kt.alpca.cctv.application.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

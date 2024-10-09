@@ -1,4 +1,4 @@
-package com.kt.alpca.cctv.model;
+package com.kt.alpca.cctv.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

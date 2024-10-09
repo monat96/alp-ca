@@ -1,4 +1,4 @@
-package com.kt.alpca.cctv.enums;
+package com.kt.alpca.cctv.domain.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

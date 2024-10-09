@@ -1,7 +1,7 @@
-package com.kt.alpca.cctv.service;
+package com.kt.alpca.cctv.application.service;
 
-import com.kt.alpca.cctv.model.CCTV;
-import com.kt.alpca.cctv.repository.CCTVRepository;
+import com.kt.alpca.cctv.domain.model.CCTV;
+import com.kt.alpca.cctv.infra.repository.CCTVRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,12 +16,12 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import static com.kt.alpca.cctv.enums.CSVColumn.CCTV_ID;
-import static com.kt.alpca.cctv.enums.CSVColumn.LONGITUDE;
-import static com.kt.alpca.cctv.enums.CSVColumn.LATITUDE;
-import static com.kt.alpca.cctv.enums.CSVColumn.LOCATION_NAME;
-import static com.kt.alpca.cctv.enums.CSVColumn.LOCATION_ADDRESS;
-import static com.kt.alpca.cctv.enums.CSVColumn.HLS_ADDRESS;
+import static com.kt.alpca.cctv.domain.enums.CSVColumn.CCTV_ID;
+import static com.kt.alpca.cctv.domain.enums.CSVColumn.LONGITUDE;
+import static com.kt.alpca.cctv.domain.enums.CSVColumn.LATITUDE;
+import static com.kt.alpca.cctv.domain.enums.CSVColumn.LOCATION_NAME;
+import static com.kt.alpca.cctv.domain.enums.CSVColumn.LOCATION_ADDRESS;
+import static com.kt.alpca.cctv.domain.enums.CSVColumn.HLS_ADDRESS;
 
 
 @Service

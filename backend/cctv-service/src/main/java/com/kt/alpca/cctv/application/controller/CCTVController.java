@@ -1,7 +1,7 @@
-package com.kt.alpca.cctv.controller;
+package com.kt.alpca.cctv.application.controller;
 
-import com.kt.alpca.cctv.dto.UploadRequest;
-import com.kt.alpca.cctv.service.CCTVService;
+import com.kt.alpca.cctv.application.dto.UploadRequest;
+import com.kt.alpca.cctv.application.service.CCTVService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
