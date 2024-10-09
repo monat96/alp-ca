@@ -14,3 +14,22 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+      bindings:
+        cctv-event-in:
+          destination: cctv-event
+          contentType: application/json
+          group: cctv-service
+        cctv-event-out:
+            destination: health-check-event
+            contentType: application/json
+
+logging:
+  level:
+    org.hibernate.type: trace
+    org.springframework.cloud: debug
