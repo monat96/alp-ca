@@ -1,10 +1,13 @@
 # CCTV Out
+![image](https://github.com/monat96/alp-ca/blob/main/image/cctv.jfif)
+
 
 CCTV Out은 등록 된 CCTV의 상태를 실시간으로 감시하여 문제 발생 시 담당자에게 자동알림을 발송하는 프로그램입니다.
 
 # 서비스 시나리오
 
 CCTV 네트워크 이상감지 프로젝트로 관리자가 관제하고싶은 CCTV IP를 등록을 하게되면 자동으로 ICMP와 Hls를 확인하여 회선의 문제인지 카메라 자체의 문제인지 자동판별 후 각각의 담당자에게 전달을 진행한다. 이후 
+
 
 ## 기능적 요구사항
 
@@ -89,31 +92,32 @@ CCTV 네트워크 이상감지 프로젝트로 관리자가 관제하고싶은 C
 ![image](https://github.com/monat96/alp-ca/blob/main/image/6.%20%E1%84%92%E1%85%AA%E1%84%89%E1%85%A1%E1%86%AF%E1%84%91%E1%85%AD.png)
 
 
-# 구현진행
+# 구현 진행
 
-분석/설계 단계에서 만들어진 내용대로 구현을 진행된다.
-  1. cctv-service: CCTV IP등록 및 삭제가 가능하다.
-  2. health-check-service: 등록 된 CCTV IP를 15분에 한번씩 ICMP, HLS 점검을 진행 후 문제가있는경우 issue로 전달한다.
-  3. issue-service: ICMP, HLS 문제상황 별 처리를 진행하며 결과를 notification으로 전달한다.
-  4. notification-service: IP 별 상황을 기록한다.
+이 프로젝트는 분석/설계 단계에서 정의된 내용에 따라 구현됩니다.
 
-각각 실행은 아래 코드로 실행이 가능하다.
-1) 각각 실행 (각각 폴더안에서 실행)
+1. **cctv-service**: CCTV IP를 등록 및 삭제할 수 있습니다.
+2. **health-check-service**: 등록된 CCTV IP에 대해 15분마다 ICMP 및 HLS 점검을 진행하며, 문제가 발생하면 issue-service에 문제를 전달합니다.
+3. **issue-service**: ICMP 및 HLS 문제 상황에 따라 문제를 처리하고, 결과를 notification-service에 전달합니다.
+4. **notification-service**: 각 IP의 상태와 이력을 기록합니다.
+
+### 실행 방법
+
+아래의 명령어로 각각의 서비스를 실행할 수 있습니다.
+
+1) 각 서비스 개별 실행 (각 서비스 폴더에서 실행):
 ```bash
-    ./gradlew bootRun
+  ./gradlew bootRun
 ```
 2) 한번에 실행 (alp-ca 위치에서 실행)
 ```bash
     docker-compose up
 ```
-## DDD적용  
-
-ㅇㅇㅇㅇㅇ
 
 ## CQRS 
 
-CQRS(Command Query Responsibility Segregation)구현을 위해 쓰기와 읽기를 구분하여 개발진행.
-CSV파일을 읽고 CCTV데이터를 변환하여 이벤트를 발생시키는 로직 구현(쓰기)
+이 프로젝트는 CQRS 패턴을 적용하여 쓰기 작업과 읽기 작업을 분리하여 구현되었습니다. CSV 파일을 읽어 CCTV 데이터를 변환하고 이벤트를 발생시키는 쓰기 로직이 구현되어 있습니다.
+
 ![image](https://github.com/monat96/alp-ca/blob/main/image/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA%202024-10-10%20%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE%204.33.32.png)
 
 
@@ -203,7 +207,11 @@ RestAPI는 크게 4가지의 서비스의 소통을 통해 진행이된다. --> 
 4. ICMP, RLS 문제 발생 시 해결진행 (단계 별 API 전달)
 5. 에러가 발생한 CCTV의 상태 현 상태 관리
 
+
 ## 서킷브레이킹
+
+
+
 
 ## 부하테스트
 
@@ -216,3 +224,7 @@ RestAPI는 크게 4가지의 서비스의 소통을 통해 진행이된다. --> 
 ## 오토스케일 아웃
 
 ## CI/CD설정
+
+
+# Front-End
+
