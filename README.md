@@ -108,7 +108,38 @@ CCTV 네트워크 이상감지 프로젝트로 관리자가 관제하고싶은 C
 
 # 구현진행
 
-## DDD적용  ----- (위치확인 후 작성)
+분석/설계 단계에서 만들어진 내용대로 구현을 진행된다.
+  1. cctv-service: CCTV IP등록 및 삭제가 가능하다.
+  2. health-check-service: 등록 된 CCTV IP를 15분에 한번씩 ICMP, HLS 점검을 진행 후 문제가있는경우 issue로 전달한다.
+  3. issue-service: ICMP, HLS 문제상황 별 처리를 진행하며 결과를 notification으로 전달한다.
+  4. notification-service: IP 별 상황을 기록한다.
+
+각각 실행은 아래 코드로 실행이 가능하다.
+1) 각각 실행 (각각 폴더안에서 실행)
+```
+    ./greadlew bootRun
+```
+2) 한번에 실행 (alp-ca 위치에서 실행)
+```
+    docker-compose up
+```
+## DDD적용  
+
+ㅇㅇㅇㅇㅇ
+
+## CQRS 
+
+CQRS(Command Query Responsibility Segregation)구현을 위해 쓰기와 읽기를 구분하여 개발진행.
+CSV파일을 읽고 CCTV데이터를 변환하여 이벤트를 발생시키는 로직 구현(쓰기)
+![image](https://github.com/monat96/alp-ca/blob/main/image/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA%202024-10-10%20%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE%204.33.32.png)
+
+
+## API게이트웨이
+
+
+
+
+
 
 ## RestAPI 적용 결과
 RestAPI는 크게 4가지의 서비스의 소통을 통해 진행이된다.
@@ -150,6 +181,9 @@ Airbnb 프로젝트에서는 PolicyHandler에서 처리 시 어떤 건에 대한
 ![image](https://user-images.githubusercontent.com/31723044/119320747-dcd5c900-bcb6-11eb-9c44-fd3781c7c55f.png)
 취소 후 - 결제 상태
 ![image](https://user-images.githubusercontent.com/31723044/119320806-ee1ed580-bcb6-11eb-8ccf-8c81385cc8ba.png)
+
+
+
 
 
 ## DDD 의 적용
