@@ -116,11 +116,11 @@ CCTV 네트워크 이상감지 프로젝트로 관리자가 관제하고싶은 C
 
 각각 실행은 아래 코드로 실행이 가능하다.
 1) 각각 실행 (각각 폴더안에서 실행)
-```
+```bash
     ./greadlew bootRun
 ```
 2) 한번에 실행 (alp-ca 위치에서 실행)
-```
+```bash
     docker-compose up
 ```
 ## DDD적용  
@@ -134,23 +134,103 @@ CSV파일을 읽고 CCTV데이터를 변환하여 이벤트를 발생시키는 �
 ![image](https://github.com/monat96/alp-ca/blob/main/image/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA%202024-10-10%20%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE%204.33.32.png)
 
 
+
+
 ## API게이트웨이
 
+gateway 스프링부트 App을 추가 후 application.yaml내에 각 마이크로 서비스의 routes 를 추가하고 gateway 서버의 포트를 8080 으로 설정함
 
+상용버전과 개발버전을 다르게 하기위하여 application.yaml에는 profiles의 active를 활용
 
+application.yaml
+```yaml
+spring:
+  application:
+    name: gateway
+  profiles:
+    active: dev
+```
+
+각각 서비스별로 매칭을 시키는 작업을 진행한다.
+
+application-dev.yaml
+```yaml
+ spring:
+  cloud:
+    gateway:
+      routes:
+        - id: cctv-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/cctvs/**
+        - id: health-check-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/health-checks/**
+        - id: issue-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/issues/**
+        - id: notification-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/notifications/**
+      globalcors:
+        cors-configurations:
+            '[/**]':
+                allowed-origin-patterns:
+                  -  "*"
+                allowedMethods:
+                    - GET
+                    - POST
+                    - PUT
+                    - DELETE
+                allowedHeaders:
+                    - "*"
+                allowCredentials: false
+                maxAge: 3600
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+```
 
 
 
 ## RestAPI 적용 결과
-RestAPI는 크게 4가지의 서비스의 소통을 통해 진행이된다.
-1. 
+RestAPI는 크게 4가지의 서비스의 소통을 통해 진행이된다. --> API를 통해 전달되는 과정을 확인 한 후 붙여넣는다.
+
+
+1. 엑셀 파일을 활용한 데이터 등록
+2. 등록 된 데이터 삭제 기능
+3. 
 
 
 ### 파일을 이용한 관리자의 CCTV IP 등록
 
 ### CCTV IP 삭제
 
-### 
+### ICMP, RLS 검사진행 / 문제가 있을 시 담당자에게 IP 전달(자동)
+- 상태는 ICMP 4개, HLS 3개로 총 7개의 상태가 존재한다. 해당 
+
+```java
+public enum ICMPStatus {
+    SUCCESS,
+    LOSS,
+    TIMEOUT,
+    FAIL
+}
+
+public enum HLSStatus {
+    SUCCESS,
+    FAIL,
+    ERROR
+}
+```
+
+### ICMP, RLS 문제 발생 시 해결진행 (단계 별 API 전달)
+
+### 에러가 발생한 CCTV의 상태 현 상태 관리
+
+
 
 
 
