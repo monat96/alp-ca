@@ -7,7 +7,7 @@ import com.kt.alpca.healthcheck.domain.model.enums.HLSStatus;
 import com.kt.alpca.healthcheck.domain.model.enums.ICMPStatus;
 import com.kt.alpca.healthcheck.domain.utils.hls.HLSStreamChecker;
 import com.kt.alpca.healthcheck.domain.utils.icmp.EchoReply;
-import com.kt.alpca.healthcheck.domain.utils.icmp.EchoRequest;
+import com.kt.alpca.healthcheck.domain.utils.icmp.EchoChecker;
 import com.kt.alpca.healthcheck.infra.repository.HealthCheckRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -21,14 +21,14 @@ public class HealthCheckService {
 
     public void performHealthCheck(CCTVRegisteredEvent event) {
         HLSStatus hlsstatus = HLSStreamChecker.exec(event.getHlsAddress());
-        EchoReply echoReply = EchoRequest.exec(event.getIpAddress());
+        EchoReply echoReply = EchoChecker.exec(event.getIpAddress());
 
         HealthCheck healthCheck = HealthCheck.builder()
                 .cctvId(event.getCctvId())
                 .rttMax(echoReply.getRtt().getMax())
                 .rttAvg(echoReply.getRtt().getAvg())
                 .rttMin(echoReply.getRtt().getMin())
-                .icmpStatus(echoReply.getICMPStatus())
+                .icmpStatus(echoReply.getStatus())
                 .hlsStatus(hlsstatus)
                 .build();
 
@@ -54,11 +54,9 @@ public class HealthCheckService {
         if (hlsstatus.equals(HLSStatus.FAIL) || hlsstatus.equals(HLSStatus.ERROR)) {
             streamBridge.send("health-check-event-out", hlsHealthCheckedEvent);
         }
-        System.out.println(echoReply.getICMPStatus());
-        System.out.println(echoReply.getICMPStatus().equals(ICMPStatus.SUCCESS));
-        if (echoReply.getICMPStatus().equals(ICMPStatus.FAIL) ||
-                echoReply.getICMPStatus().equals(ICMPStatus.TIMEOUT)) {
-            System.out.println(echoReply.getICMPStatus());
+
+        if (echoReply.getStatus().equals(ICMPStatus.FAIL) ||
+                echoReply.getStatus().equals(ICMPStatus.TIMEOUT)) {
             streamBridge.send("health-check-event-out", icmpHealthCheckedEvent);
         }
 
