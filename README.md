@@ -6,7 +6,7 @@ CCTV Out은 등록 된 CCTV의 상태를 실시간으로 감시하여 문제 발
 
 # 서비스 시나리오
 
-CCTV 네트워크 이상감지 프로젝트로 관리자가 관제하고싶은 CCTV IP를 등록을 하게되면 자동으로 ICMP와 Hls를 확인하여 회선의 문제인지 카메라 자체의 문제인지 자동판별 후 각각의 담당자에게 전달을 진행한다. 이후 
+CCTV 네트워크 이상감지 프로젝트로 관리자가 관제하고싶은 CCTV IP를 등록을 하게되면 자동으로 ICMP와 Hls를 확인하여 회선의 문제인지 카메라 자체의 문제인지 자동판별 후 각각의 담당자에게 전달을 진행합니다. 이후 담당자가 해당 이슈상황을 처리하게되면 알림을 자동으로 보내며 서비스가 끝나게됩니다.
 
 
 ## 기능적 요구사항
@@ -46,6 +46,18 @@ CCTV 네트워크 이상감지 프로젝트로 관리자가 관제하고싶은 C
 - 네트워크 또는 장치 장애가 발생했을 때 다른 서비스에 영향 없이 독립적으로 작동할 수 있는가?
 
 # 분석/설계
+
+## AS-IS
+
+![image](https://github.com/monat96/alp-ca/blob/main/image/ASIS.png)
+
+기존에는 CCTV에 문제가 발생하면 관제사가 해당 CCTV를 확인한 후, KT 담당자에게 요청을 합니다. 이후 KT 담당자가 현장에 출동해 문제의 원인이 KT 회선인지, CCTV 기기 자체에 있는지 파악합니다. 만약 CCTV 기기 문제로 확인되면, 해당 기기의 담당자를 불러 문제를 해결하는 방식으로 작업이 마무리됩니다. 이러한 프로세스는 많은 시간이 소요되는 문제점이 있었습니다.
+
+## TO-BE
+![image](https://github.com/monat96/alp-ca/blob/main/image/TOBE.png)
+
+TO-BE 시나리오에서는, 관제사가 CCTV IP를 등록하면 시스템이 자동으로 15분 간격으로 ICMP와 HLS 상태를 점검하게 됩니다. 문제가 발생할 경우, ICMP 문제는 KT 담당자에게, HLS 문제는 CCTV 담당자에게 자동으로 알림이 전송됩니다. 문제가 해결되면 관제사에게 알림을 보내 문제 해결을 인식할 수 있도록 합니다.
+
 
 ## Event Storming 결과
 * MSAEz 로 모델링한 이벤트스토밍 결과:  [https://www.msaez.io/#/storming/nmsservice]
@@ -181,14 +193,30 @@ application-dev.yaml
 
 
 ## RestAPI 적용 결과
-RestAPI는 크게 4가지의 서비스의 소통을 통해 진행이된다. --> API를 통해 전달되는 과정을 확인 한 후 붙여넣는다.
+RestAPI는 크게 4가지의 서비스의 소통을 통해 진행이 됩니다.
 
 
-1. 엑셀 파일을 활용한 데이터 등록
-2. 등록 된 데이터 삭제 기능
-3. ICMP, RLS 검사진행 / 문제가 있을 시 담당자에게 IP 전달(자동)
+1. 엑셀 파일을 활용한 CCTV 데이터 등록
+![image](https://github.com/monat96/alp-ca/blob/main/image/API_cctv.png)
 
-- 상태는 ICMP 4개, HLS 3개로 총 7개의 상태가 존재한다. 상태는 다음과같다.
+관제사가 CCTV 데이터를 대량으로 관리할 수 있도록, 엑셀 파일을 이용해 CCTV IP 주소 및 기타 관련 정보를 시스템에 일괄 등록할 수 있습니다. 이 기능을 통해 관리자는 효율적으로 CCTV 장치 데이터를 업데이트하고, 실시간 모니터링을 위한 데이터를 준비할 수 있습니다.
+
+
+2. 등록된 CCTV 데이터 삭제 기능
+![image](https://github.com/monat96/alp-ca/blob/main/image/API_Delete.png)
+
+더 이상 사용하지 않는 CCTV 장치 또는 불필요한 장치 데이터를 시스템에서 삭제할 수 있는 기능을 제공합니다. 이로 인해 삭제된 CCTV 장치는 이후 검사 및 모니터링 대상에서 제외되어, 불필요한 리소스 소모를 방지할 수 있습니다. 관제사는 불필요한 데이터를 주기적으로 정리함으로써 시스템의 효율성을 높일 수 있습니다.
+
+
+3. ICMP 및 HLS 검사 진행 및 문제 발생 시 담당자에게 IP 전달
+![image](https://github.com/monat96/alp-ca/blob/main/image/API_health.png)
+
+시스템은 CCTV 네트워크 상태를 주기적으로 확인하며, ICMP(인터넷 제어 메시지 프로토콜)와 HLS(HTTP Live Streaming) 상태를 검사합니다. 검사 결과는 각각 다음과 같은 7가지 상태로 구분됩니다:
+
+ICMP 상태: SUCCESS, LOSS, TIMEOUT, FAIL (4개 상태)
+HLS 상태: SUCCESS, FAIL, ERROR (3개 상태)
+각 상태에 따라 네트워크 이상 여부를 판단하며, 문제가 발생하면 담당자에게 알려줍니다. 이를 통해 담당자는 신속하게 문제를 파악하고 해결할 수 있습니다.
+
 ```java
   public enum ICMPStatus {
       SUCCESS,
@@ -203,21 +231,31 @@ RestAPI는 크게 4가지의 서비스의 소통을 통해 진행이된다. --> 
       ERROR
   }
 ```
+4. ICMP, HLS 각각의 이슈 발생 시 해당 데이터를 적재하고 이후 이슈해결을 진행
+![image](https://github.com/monat96/alp-ca/blob/main/image/API_issue.png)
 
-4. ICMP, RLS 문제 발생 시 해결진행 (단계 별 API 전달)
+ICMP 또는 HLS 검사 중 하나에서 이슈가 발생하면, 해당 CCTV 장치의 관련 데이터를 시스템에 자동으로 적재합니다. 적재된 데이터는 네트워크 장애 및 CCTV 장치 문제에 대한 분석 자료로 활용됩니다.
+
 5. 에러가 발생한 CCTV의 상태 현 상태 관리
+![image](https://github.com/monat96/alp-ca/blob/main/image/API_noti.png)
+
+에러가 발생한 CCTV 장치에 대한 상태를 시스템에서 지속적으로 관리합니다. 각 CCTV 장치의 현재 상태는 실시간으로 업데이트되며, 문제가 해결될 때까지 시스템에서 해당 장치를 주의 상태로 표시합니다.
 
 
 ## 서킷브레이킹
-
-
-
 
 ## 부하테스트
 
 
 
-# 운영
+# 배포
+
+##  Docker Build 이미지 생성
+
+## Docker 이미지 배포
+
+## K8S 배포
+
 
 ## 무정지 재배포
 
@@ -226,5 +264,5 @@ RestAPI는 크게 4가지의 서비스의 소통을 통해 진행이된다. --> 
 ## CI/CD설정
 
 
-# Front-End
+
 
