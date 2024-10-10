@@ -400,6 +400,87 @@ az aks get-credentials --resource-group userXX-rsrcgrp --name userXX-aks
 
 3. k8s 배포 설정 파일 작성
 
+Deployment
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cctv-service-deployment
+  labels:
+    app: cctv-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cctv-service
+  template:
+    metadata:
+      labels:
+        app: cctv-service
+    spec:
+      containers:
+        - name: cctv-service
+          image: <your-dockerhub-repo>/cctv-service:latest
+          ports:
+            - containerPort: 8081
+
+---
+apiVersion: apps/v1
+kind: Deployment
+.....
+
+
+spec:
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: <your-dockerhub-repo>/notification-service:latest
+          ports:
+            - containerPort: 8805
+
+```
+
+Service
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cctv-service
+spec:
+  selector:
+    app: cctv-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8081
+  type: NodePort
+  nodePort: 30001
+
+---
+
+.......
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8805
+  type: NodePort
+  nodePort: 30004
+
+```
 4. k8s 애플리케이션 배포
 
 ```bash
