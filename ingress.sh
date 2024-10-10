@@ -21,6 +21,12 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+kubectl create namespace ingress-basic
+if [ $? -ne 0 ]; then
+  echo "Failed to create namespace ingress-basic"
+  exit 1
+fi
+
 # Add Helm repositories
 helm repo add stable https://charts.helm.sh/stable
 if [ $? -ne 0 ]; then
