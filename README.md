@@ -135,7 +135,60 @@ TO-BE 시나리오에서는, 관제사가 CCTV IP를 등록하면 시스템이 �
 
 이 프로젝트는 CQRS 패턴을 적용하여 쓰기 작업과 읽기 작업을 분리하여 구현되었습니다. CSV 파일을 읽어 CCTV 데이터를 변환하고 이벤트를 발생시키는 쓰기 로직이 구현되어 있습니다.
 
-![image](https://github.com/monat96/alp-ca/blob/main/image/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA%202024-10-10%20%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE%204.33.32.png)
+```java
+// CSV파일을 읽어서 CCTV데이터 변환 및 이벤트 발생
+@Service
+@RequiredArgsConstructor
+public class CCTVService {
+    private final CCTVRepository cctvRepository;
+    private final StreamBridge streamBridge;
+
+    public void upload(MultipartFile file) throws IOException {
+        try (
+                BufferedReader fileReader = new BufferedReader(
+                        new InputStreamReader(file.getInputStream(), "MS949")
+                );
+                CSVParser csvParser = new CSVParser(
+                        fileReader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim()
+                );
+        ) {
+            Iterable<CSVRecord> csvRecords = csvParser.getRecords();
+            List<CCTV> cctvs = StreamSupport
+                    .stream(csvRecords.spliterator(), false)
+                    .map(this::convertToCctv)
+                    .toList();
+
+            cctvRepository.saveAll(cctvs);
+        }
+    }
+
+    @Scheduled(fixedRate = 1000 * 60 * 10) // 15분마다
+    public void checkCCTV() {
+        cctvRepository.findAll().stream().map(this::convertToCctvRegisteredEvent)
+                .forEach(event -> streamBridge.send(KafkaBindingNames.CCTV_EVENT_OUT, event));
+    }
+
+    private CCTV convertToCctv(CSVRecord csvRecord) {
+        return CCTV.builder()
+                .cctvId(csvRecord.get(CCTV_ID.getColumn()))
+                .ipAddress("8.8.8.8")
+                .longitude(Double.parseDouble(csvRecord.get(LONGITUDE.getColumn())))
+                .latitude(Double.parseDouble(csvRecord.get(LATITUDE.getColumn())))
+                .locationName(csvRecord.get(LOCATION_NAME.getColumn()))
+                .locationAddress(csvRecord.get(LOCATION_ADDRESS.getColumn()))
+                .hlsAddress(csvRecord.get(HLS_ADDRESS.getColumn()))
+                .build();
+    }
+
+    private CCTVRegisteredEvent convertToCctvRegisteredEvent(CCTV cctv) {
+        return CCTVRegisteredEvent.builder()
+                .cctvId(cctv.getCctvId())
+                .ipAddress(cctv.getIpAddress())
+                .hlsAddress(cctv.getHlsAddress())
+                .build();
+    }
+}
+```
 
 
 ## API게이트웨이
