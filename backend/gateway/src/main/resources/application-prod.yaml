@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: cctv-service
+          uri: http://cctvs:8080
+          predicates:
+            - Path=/cctvs/**
+        - id: health-check-service
+          uri: http://health-checks:8080
+          predicates:
+            - Path=/health-checks/**
+        - id: issue-service
+          uri: http://issues:8080
+          predicates:
+            - Path=/issues/**
+        - id: notification-service
+          uri: http://notifications:8080
+          predicates:
+            - Path=/notifications/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns:
+              -  "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            allowedHeaders:
+              - "*"
+            allowCredentials: false
+            maxAge: 3600
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
