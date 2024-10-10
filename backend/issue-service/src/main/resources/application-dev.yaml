@@ -14,3 +14,33 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+
+  cloud:
+    function:
+      definition: issueEvent
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+      bindings:
+        issue-event-in:
+          destination: issue-event-in
+          contentType: application/json
+          group: issue-service
+        issue-event-out:
+          destination: notificationEvent-in-0
+          contentType: application/json
+
+logging:
+  level:
+    org.hibernate.type: trace
+    org.springframework.cloud: debug

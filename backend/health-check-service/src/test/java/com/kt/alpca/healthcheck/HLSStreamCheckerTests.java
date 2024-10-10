@@ -1,7 +1,7 @@
 package com.kt.alpca.healthcheck;
 
-import com.kt.alpca.healthcheck.enums.HLSStatus;
-import com.kt.alpca.healthcheck.utils.hls.HLSStreamChecker;
+import com.kt.alpca.healthcheck.domain.model.enums.HLSStatus;
+import com.kt.alpca.healthcheck.domain.utils.hls.HLSStreamChecker;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

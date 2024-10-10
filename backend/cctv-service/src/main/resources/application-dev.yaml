@@ -15,6 +15,15 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+
   cloud:
     stream:
       kafka:
@@ -22,11 +31,11 @@ spring:
           brokers: localhost:9092
       bindings:
         cctv-event-in:
-          destination: cctv-event
+          destination: cctv-event-in
           contentType: application/json
           group: cctv-service
         cctv-event-out:
-            destination: health-check-event
+            destination: healthCheckEvent-in-0
             contentType: application/json
 
 logging:

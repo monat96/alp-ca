@@ -49,14 +49,12 @@ public class CCTVService {
                     .map(this::convertToCctv)
                     .toList();
 
-            cctvRepository.saveAll(cctvs);
+//            cctvRepository.saveAll(cctvs);
 
             cctvs.stream()
                     .map(this::convertToCctvRegisteredEvent)
                     .forEach(event -> streamBridge.send(
-                                    KafkaBindingNames.CCTV_EVENT_OUT, MessageBuilder
-                                            .withPayload(event)
-                                            .build()
+                                    KafkaBindingNames.CCTV_EVENT_OUT, event
                             )
                     );
         }
