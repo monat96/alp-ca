@@ -11,6 +11,7 @@ import com.kt.alpca.healthcheck.domain.utils.icmp.EchoChecker;
 import com.kt.alpca.healthcheck.infra.repository.HealthCheckRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +20,7 @@ public class HealthCheckService {
     private final HealthCheckRepository healthCheckRepository;
     private final StreamBridge streamBridge;
 
+    @Async
     public void performHealthCheck(CCTVRegisteredEvent event) {
         HLSStatus hlsstatus = HLSStreamChecker.exec(event.getHlsAddress());
         EchoReply echoReply = EchoChecker.exec(event.getIpAddress());

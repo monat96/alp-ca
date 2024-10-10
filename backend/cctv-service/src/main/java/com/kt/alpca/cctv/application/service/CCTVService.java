@@ -7,6 +7,7 @@ import com.kt.alpca.cctv.infra.repository.CCTVRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,15 +50,14 @@ public class CCTVService {
                     .map(this::convertToCctv)
                     .toList();
 
-//            cctvRepository.saveAll(cctvs);
-
-            cctvs.stream()
-                    .map(this::convertToCctvRegisteredEvent)
-                    .forEach(event -> streamBridge.send(
-                                    KafkaBindingNames.CCTV_EVENT_OUT, event
-                            )
-                    );
+            cctvRepository.saveAll(cctvs);
         }
+    }
+
+    @Scheduled(fixedRate = 1000 * 60 * 1) // 15분마다
+    public void checkCCTV() {
+        cctvRepository.findAll().stream().map(this::convertToCctvRegisteredEvent)
+                .forEach(event -> streamBridge.send(KafkaBindingNames.CCTV_EVENT_OUT, event));
     }
 
     private CCTV convertToCctv(CSVRecord csvRecord) {
