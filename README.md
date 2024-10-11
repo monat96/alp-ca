@@ -306,6 +306,40 @@ ICMP 또는 HLS 검사 중 하나에서 이슈가 발생하면, 해당 CCTV 장�
 에러가 발생한 CCTV 장치에 대한 상태를 시스템에서 지속적으로 관리합니다.  
 각 CCTV 장치의 현재 상태는 실시간으로 업데이트되며, 문제가 해결될 때까지 시스템에서 해당 장치를 주의 상태로 표시합니다.
 
+## 재시도 매커니즘
+```yaml
+  cloud:
+    function:
+      definition: healthCheckEvent
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+      bindings:
+        health-check-event-in:
+          destination: health-check-event-in
+          contentType: application/json
+          group: health-check-service
+        health-check-event-out:
+          destination: issueEvent-in-0
+          contentType: application/json
+          producer:
+            retry:
+              maxAttempts: 5
+              backOffInitialInterval: 1000
+              backOffMaxInterval: 5000
+```
+health-check-event-out 프로듀서는 issueEvent-in-0이라는 대상(destination)으로 Kafka 메시지를 전송합니다.  
+만약 메시지 전송 중 네트워크 장애나 Kafka 브로커의 일시적인 오류로 인해 메시지 전송이 실패할 경우, 재시도 매커니즘이 작동하여 메시지를 다시 전송하도록 합니다.
+
+주요 설정:
+
+- maxAttempts: 5: 메시지 전송 실패 시 최대 5번까지 재시도합니다. 첫 번째 시도가 실패할 경우 5회까지 추가 시도를 허용하며, 재시도 횟수가 5번을 넘으면 재시도는 중단됩니다.
+- backOffInitialInterval: 1000: 첫 번째 재시도는 실패 후 1초(1000ms) 뒤에 이루어집니다. 즉, 메시지 전송이 실패할 경우, 1초 후에 첫 번째 재시도를 시도합니다.
+- backOffMaxInterval: 5000: 재시도 간 간격이 점차 늘어나며, **최대 5초(5000ms)**까지 증가합니다. 초기 재시도 간격은 1초이지만, 각 재시도마다 간격이 점차 증가하여 최대 5초까지 대기 후 재시도가 이루어집니다.
+
+
+
 # 배포
 
 배포는 다음과 같은 순서로 진행을합니다.
