@@ -21,13 +21,13 @@ CCTV 네트워크 이상감지 프로젝트로 관리자가 관제하고싶은 C
 ## 비기능적 요구사항
 
  트랜잭션
-  - ICMP, HLS 핑 테스트 실패 시 알림 전송이 이루어져야 한다. (Sync 호출)
+  - ICMP, HLS 핑 테스트 실패 시 알림 전송이 이루어져야 한다.
  장애격리
-  - 네트워크 점검 및 알림 시스템은 365일 24시간 중단 없이 작동해야 한다. (Async, Eventual Consistency)
-  - 핑 테스트가 실패한 경우에도 다른 카메라 장치에 대한 테스트는 계속되어야 한다. (Circuit breaker, fallback)
+  - 네트워크 점검 및 알림 시스템은 365일 24시간 중단 없이 작동해야 한다.
+  - 핑 테스트가 실패한 경우에도 다른 카메라 장치에 대한 테스트는 계속되어야 한다.
  성능
-  - 모든 CCTV 장치에 대한 네트워크 상태와 알림 내역을 실시간으로 확인할 수 있어야 한다. (CQRS)
-  - 네트워크 장애가 발생할 때마다 즉시 담당자에게 알림이 전달되어야 한다. (Event driven)
+  - 모든 CCTV 장치에 대한 네트워크 상태와 알림 내역을 실시간으로 확인할 수 있어야 한다.
+  - 네트워크 장애가 발생할 때마다 즉시 담당자에게 알림이 전달되어야 한다. 
 
 
 ## 분석 및 설계
@@ -106,7 +106,7 @@ TO-BE 시나리오에서는, 관제사가 CCTV IP를 등록하면 시스템이 �
 
 ## 완성된 모형
 
-![image](https://github.com/monat96/alp-ca/blob/main/image/6.%20%E1%84%92%E1%85%AA%E1%84%89%E1%85%A1%E1%86%AF%E1%84%91%E1%85%AD.png)
+![image](https://github.com/monat96/alp-ca/blob/main/image/event_%E1%84%8B%E1%85%AA%E1%86%AB%E1%84%89%E1%85%A5%E1%86%BC.png)
 
 
 # 구현 진행
@@ -306,6 +306,40 @@ ICMP 또는 HLS 검사 중 하나에서 이슈가 발생하면, 해당 CCTV 장�
 에러가 발생한 CCTV 장치에 대한 상태를 시스템에서 지속적으로 관리합니다.  
 각 CCTV 장치의 현재 상태는 실시간으로 업데이트되며, 문제가 해결될 때까지 시스템에서 해당 장치를 주의 상태로 표시합니다.
 
+## 재시도 매커니즘
+```yaml
+  cloud:
+    function:
+      definition: healthCheckEvent
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:9092
+      bindings:
+        health-check-event-in:
+          destination: health-check-event-in
+          contentType: application/json
+          group: health-check-service
+        health-check-event-out:
+          destination: issueEvent-in-0
+          contentType: application/json
+          producer:
+            retry:
+              maxAttempts: 5
+              backOffInitialInterval: 1000
+              backOffMaxInterval: 5000
+```
+health-check-event-out 프로듀서는 issueEvent-in-0이라는 대상(destination)으로 Kafka 메시지를 전송합니다.  
+만약 메시지 전송 중 네트워크 장애나 Kafka 브로커의 일시적인 오류로 인해 메시지 전송이 실패할 경우, 재시도 매커니즘이 작동하여 메시지를 다시 전송하도록 합니다.
+
+주요 설정:
+
+- maxAttempts: 5: 메시지 전송 실패 시 최대 5번까지 재시도합니다. 첫 번째 시도가 실패할 경우 5회까지 추가 시도를 허용하며, 재시도 횟수가 5번을 넘으면 재시도는 중단됩니다.
+- backOffInitialInterval: 1000: 첫 번째 재시도는 실패 후 1초(1000ms) 뒤에 이루어집니다. 즉, 메시지 전송이 실패할 경우, 1초 후에 첫 번째 재시도를 시도합니다.
+- backOffMaxInterval: 5000: 재시도 간 간격이 점차 늘어나며, **최대 5초(5000ms)**까지 증가합니다. 초기 재시도 간격은 1초이지만, 각 재시도마다 간격이 점차 증가하여 최대 5초까지 대기 후 재시도가 이루어집니다.
+
+
+
 # 배포
 
 배포는 다음과 같은 순서로 진행을합니다.
@@ -405,11 +439,11 @@ Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cctv-service-deployment
+  name: cctv-service
   labels:
     app: cctv-service
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: cctv-service
@@ -420,28 +454,12 @@ spec:
     spec:
       containers:
         - name: cctv-service
-          image: <your-dockerhub-repo>/cctv-service:latest
+          image: "monat96/alp-ca-cctv-service:latest"
           ports:
-            - containerPort: 8081
-
----
-apiVersion: apps/v1
-kind: Deployment
-.....
-
-
-spec:
-  template:
-    metadata:
-      labels:
-        app: notification-service
-    spec:
-      containers:
-        - name: notification-service
-          image: <your-dockerhub-repo>/notification-service:latest
-          ports:
-            - containerPort: 8805
-
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 200m
 ```
 
 Service
@@ -451,41 +469,33 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cctv-service
+  labels:
+    app: cctv-service
 spec:
   selector:
     app: cctv-service
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8081
-  type: NodePort
-  nodePort: 30001
-
----
-
-.......
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: notification-service
-spec:
-  selector:
-    app: notification-service
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8805
-  type: NodePort
-  nodePort: 30004
-
+    - port: 8080
+      targetPort: 8080
 ```
 4. k8s 애플리케이션 배포
 
 ```bash
-kubectl apply -f deployment.yaml
-kubectl apply -f service.yaml
+#!/bin/bash
+
+services=(
+  "gateway"
+  "cctv-service"
+  "health-check-service"
+  "issue-service"
+  "notification-service"
+)
+
+for service in "${services[@]}"; do
+  kubectl apply -f "./backend/${service}/kubernetes/deployment.yaml"
+  kubectl apply -f "./backend/${service}/kubernetes/service.yaml"
+done
+
 ```
 
 5. 애플리케이션 상태확인
