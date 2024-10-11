@@ -59,7 +59,7 @@ public class CCTVService {
         }
     }
 
-    @Scheduled(fixedRate = 1000 * 60 * 10) // 15분마다
+    @Scheduled(fixedRate = 1000 * 60 * 5) // 15분마다
     public void checkCCTV() {
         cctvRepository.findAll().stream().map(this::convertToCctvRegisteredEvent)
                 .forEach(event -> streamBridge.send(KafkaBindingNames.CCTV_CREATED, event));
