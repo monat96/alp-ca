@@ -29,7 +29,7 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: localhost:9092
+          brokers: http://my-kafka:9092
       bindings:
         icmpHealthChecked:
           destination: icmp-health-checked-topic

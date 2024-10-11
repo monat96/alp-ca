@@ -29,7 +29,7 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: localhost:9092
+          brokers: http://my-kafka:9092
       bindings:
         hlsHealthChecked-in-0:
           destination: hls-health-checked-topic

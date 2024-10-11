@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class HealthCheckEventListener {
     private final HealthCheckService healthCheckService;
 
-    @Bean
+    @Bean(name = "cctvCreatedListener")
     public Consumer<CCTVRegisteredEvent> cctvCreated() {
         return healthCheckService::performHealthCheck;
     }
