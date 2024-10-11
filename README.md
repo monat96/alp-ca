@@ -106,7 +106,7 @@ TO-BE 시나리오에서는, 관제사가 CCTV IP를 등록하면 시스템이 �
 
 ## 완성된 모형
 
-![image]([https://github.com/monat96/alp-ca/blob/main/image/6.%20%E1%84%92%E1%85%AA%E1%84%89%E1%85%A1%E1%86%AF%E1%84%91%E1%85%AD.png](https://github.com/monat96/alp-ca/blob/main/image/event_%E1%84%8B%E1%85%AA%E1%86%AB%E1%84%89%E1%85%A5%E1%86%BC.png))
+![image](https://github.com/monat96/alp-ca/blob/main/image/event_%E1%84%8B%E1%85%AA%E1%86%AB%E1%84%89%E1%85%A5%E1%86%BC.png)
 
 
 # 구현 진행
