@@ -405,11 +405,11 @@ Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cctv-service-deployment
+  name: cctv-service
   labels:
     app: cctv-service
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: cctv-service
@@ -420,28 +420,12 @@ spec:
     spec:
       containers:
         - name: cctv-service
-          image: <your-dockerhub-repo>/cctv-service:latest
+          image: "monat96/alp-ca-cctv-service:latest"
           ports:
-            - containerPort: 8081
-
----
-apiVersion: apps/v1
-kind: Deployment
-.....
-
-
-spec:
-  template:
-    metadata:
-      labels:
-        app: notification-service
-    spec:
-      containers:
-        - name: notification-service
-          image: <your-dockerhub-repo>/notification-service:latest
-          ports:
-            - containerPort: 8805
-
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 200m
 ```
 
 Service
@@ -451,35 +435,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cctv-service
+  labels:
+    app: cctv-service
 spec:
   selector:
     app: cctv-service
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8081
-  type: NodePort
-  nodePort: 30001
-
----
-
-.......
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: notification-service
-spec:
-  selector:
-    app: notification-service
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8805
-  type: NodePort
-  nodePort: 30004
-
+    - port: 8080
+      targetPort: 8080
 ```
 4. k8s 애플리케이션 배포
 
