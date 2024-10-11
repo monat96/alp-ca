@@ -25,19 +25,16 @@ spring:
 
   cloud:
     function:
-      definition: notificationEvent
+      definition: issueCreated
     stream:
       kafka:
         binder:
           brokers: localhost:9092
       bindings:
-        notification-event-in:
-          destination: notification-event-in
-          contentType: application/json
-          group: notification-service
-        notification-event-out:
-          destination: notificationEvent-in-0
-          contentType: application/json
+        issueCreated-in-0:
+            destination: issue-created-topic
+            contentType: application/json
+
 
 logging:
   level:

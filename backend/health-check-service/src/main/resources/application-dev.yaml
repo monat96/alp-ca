@@ -26,19 +26,20 @@ spring:
 
   cloud:
     function:
-      definition: healthCheckEvent
+      definition: cctvCreated
     stream:
       kafka:
         binder:
           brokers: localhost:9092
       bindings:
-        health-check-event-in:
-          destination: health-check-event-in
-          contentType: application/json
-          group: health-check-service
-        health-check-event-out:
-          destination: issueEvent-in-0
-          contentType: application/json
+        icmpHealthChecked:
+            destination: icmp-health-checked-topic
+            contentType: application/json
+        hlsHealthChecked:
+            destination: hls-health-checked-topic
+            contentType: application/json
+        cctvCreated-in-0:
+          destination: cctv-created-topic
 
 logging:
   level:

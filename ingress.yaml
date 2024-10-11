@@ -15,27 +15,27 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: cctv
+                name: cctv-service
                 port:
                   number: 8080
           - path: /health-checks
             pathType: Prefix
             backend:
               service:
-                name: health-check
+                name: health-check-service
                 port:
                   number: 8080
           - path: /issues
             pathType: Prefix
             backend:
               service:
-                name: issue
+                name: issue-service
                 port:
                   number: 8080
           - path: /notifications
             pathType: Prefix
             backend:
               service:
-                name: notification
+                name: notification-service
                 port:
                   number: 8080

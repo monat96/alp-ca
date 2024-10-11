@@ -13,8 +13,6 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     public void performIssueCreatedEvent(IssueCreatedEvent issueCreatedEvent) {
-        System.out.println("NotificationService.performIssueCreatedEvent");
-        System.out.println(issueCreatedEvent);
 
         Notification notification = Notification.builder()
                 .cctvId(issueCreatedEvent.getCctvId())

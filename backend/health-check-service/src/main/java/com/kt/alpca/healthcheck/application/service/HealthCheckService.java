@@ -54,12 +54,12 @@ public class HealthCheckService {
                 .build();
 
         if (hlsstatus.equals(HLSStatus.FAIL) || hlsstatus.equals(HLSStatus.ERROR)) {
-            streamBridge.send("health-check-event-out", hlsHealthCheckedEvent);
+            streamBridge.send("hlsHealthChecked", hlsHealthCheckedEvent);
         }
 
         if (echoReply.getStatus().equals(ICMPStatus.FAIL) ||
                 echoReply.getStatus().equals(ICMPStatus.TIMEOUT)) {
-            streamBridge.send("health-check-event-out", icmpHealthCheckedEvent);
+            streamBridge.send("icmpHealthChecked", icmpHealthCheckedEvent);
         }
 
 

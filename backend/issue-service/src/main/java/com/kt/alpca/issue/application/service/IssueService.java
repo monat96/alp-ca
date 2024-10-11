@@ -40,7 +40,7 @@ public class IssueService {
                 .build();
 
 
-        streamBridge.send("issue-event-out", issueCreatedEvent);
+        streamBridge.send("issue-created-topic", issueCreatedEvent);
 
     }
 }

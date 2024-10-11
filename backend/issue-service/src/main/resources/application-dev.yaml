@@ -26,19 +26,21 @@ spring:
 
   cloud:
     function:
-      definition: issueEvent
+      definition: hlsHealthChecked;icmpHealthChecked
     stream:
       kafka:
         binder:
           brokers: localhost:9092
       bindings:
-        issue-event-in:
-          destination: issue-event-in
-          contentType: application/json
-          group: issue-service
-        issue-event-out:
-          destination: notificationEvent-in-0
-          contentType: application/json
+        hlsHealthChecked-in-0:
+            destination: hls-health-checked-topic
+            contentType: application/json
+        icmpHealthChecked-in-0:
+            destination: icmp-health-checked-topic
+            contentType: application/json
+        issueCreated:
+            destination: issue-created-topic
+            contentType: application/json
 
 logging:
   level:

@@ -14,7 +14,7 @@ public class NotificationEventListener {
     private final NotificationService notificationService;
 
     @Bean
-    public Consumer<IssueCreatedEvent> notificationEvent() {
+    public Consumer<IssueCreatedEvent> issueCreated() {
         return notificationService::performIssueCreatedEvent;
     }
 

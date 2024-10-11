@@ -14,9 +14,11 @@ public class IssueEventListener {
         private final IssueService issueService;
 
         @Bean
-        public Consumer<HealthCheckedEvent> issueEvent() {
+        public Consumer<HealthCheckedEvent> hlsHealthChecked() {
             return issueService::performHealthCheckedEvent;
         }
 
-
+        @Bean Consumer<HealthCheckedEvent> icmpHealthChecked() {
+            return issueService::performHealthCheckedEvent;
+        }
 }

@@ -29,10 +29,6 @@ spring:
         binder:
           brokers: localhost:9092
       bindings:
-        cctv-event-in:
-          destination: cctv-event-in
-          contentType: application/json
-          group: cctv-service
-        cctv-event-out:
-          destination: healthCheckEvent-in-0
+        cctvCreated:
+          destination: cctv-created-topic
           contentType: application/json
