@@ -50,12 +50,12 @@ public class CCTVService {
                     .stream(csvRecords.spliterator(), false)
                     .map(this::convertToCctv)
                     .toList();
-            StreamSupport
-                    .stream(csvRecords.spliterator(), false)
-                    .map(this::convertToCctv)
-                    .map(this::convertToCctvRegisteredEvent)
-                    .forEach(event -> streamBridge.send(KafkaBindingNames.CCTV_CREATED, event));
-//            cctvRepository.saveAll(cctvs);
+//            StreamSupport
+//                    .stream(csvRecords.spliterator(), false)
+//                    .map(this::convertToCctv)
+//                    .map(this::convertToCctvRegisteredEvent)
+//                    .forEach(event -> streamBridge.send(KafkaBindingNames.CCTV_CREATED, event));
+            cctvRepository.saveAll(cctvs);
         }
     }
 
